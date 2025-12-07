@@ -4,4 +4,5 @@ env.config();
 
 export default {
   PORT: process.env.PORT,
+  CONN_STRING: process.env.CONN_STRING,
 };
