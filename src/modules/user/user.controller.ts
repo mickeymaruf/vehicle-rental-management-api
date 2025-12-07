@@ -29,7 +29,7 @@ const updateUser = async (req: Request, res: Response) => {
   try {
     const result = await UserServices.updateUser(req.params.userId!, req.body);
 
-    if (result.rowCount === 0) {
+    if (result.rows.length === 0) {
       res.status(500).json({
         success: false,
         message: "User not found!",
