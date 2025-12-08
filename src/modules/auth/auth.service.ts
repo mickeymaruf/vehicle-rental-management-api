@@ -1,5 +1,7 @@
 import { pool } from "../../config/db";
 import bcrypt from "bcryptjs";
+import jwt from "jsonwebtoken";
+import config from "../../config";
 
 const createUser = async (payload: Record<string, unknown>) => {
   const { name, email, password, phone, role } = payload;
@@ -29,9 +31,15 @@ const loginUser = async (email: string, password: string) => {
     return false;
   }
 
-  delete user.password;
+  // initiate jwt token
+  const token = jwt.sign(
+    { name: user.name, email: user.email, role: user.role },
+    config.JWT_SECRET!,
+    { expiresIn: "7d" }
+  );
 
-  return { token: "", user: user };
+  delete user.password;
+  return { token, user: user };
 };
 
 export const AuthServices = {
