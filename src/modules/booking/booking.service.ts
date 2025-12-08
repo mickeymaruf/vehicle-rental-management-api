@@ -58,25 +58,8 @@ const createBooking = async (payload: Record<string, unknown>) => {
 };
 
 const getAllBookings = async (user: JwtPayload) => {
-  const getResult = async () => {
-    if (user.role === "admin") {
-      return await pool.query(
-        `SELECT
-          *,
-          
-          vehicles.vehicle_name,
-          vehicles.registration_number,
-          
-          users.name AS customer_name,
-          users.email AS customer_email
-          
-          FROM bookings
-          JOIN users ON bookings.customer_id=users.id
-          JOIN vehicles ON bookings.vehicle_id=vehicles.id;`
-      );
-    }
-
-    return await pool.query(
+  if (user.role === "admin") {
+    const result = await pool.query(
       `SELECT
         *,
         
@@ -88,36 +71,65 @@ const getAllBookings = async (user: JwtPayload) => {
         
         FROM bookings
         JOIN users ON bookings.customer_id=users.id
-        JOIN vehicles ON bookings.vehicle_id=vehicles.id
-        WHERE customer_id = $1
-        `,
-      [user.id]
+        JOIN vehicles ON bookings.vehicle_id=vehicles.id;
+      `
     );
-  };
 
-  const result = await getResult();
+    return result.rows.map((row) => {
+      return {
+        id: row.id,
+        customer_id: row.customer_id,
+        vehicle_id: row.vehicle_id,
+        rent_start_date: row.rent_start_date,
+        rent_end_date: row.rent_end_date,
+        total_price: row.total_price,
+        status: row.status,
+        customer: {
+          name: row.customer_name,
+          email: row.customer_email,
+        },
+        vehicle: {
+          vehicle_name: row.vehicle_name,
+          registration_number: row.registration_number,
+        },
+      };
+    });
+  }
 
-  const bookings = result.rows.map((row) => {
+  const result = await pool.query(
+    `SELECT
+      *,
+      
+      vehicles.vehicle_name,
+      vehicles.registration_number,
+      vehicles.type,
+      
+      users.name AS customer_name,
+      users.email AS customer_email
+      
+      FROM bookings
+      JOIN users ON bookings.customer_id=users.id
+      JOIN vehicles ON bookings.vehicle_id=vehicles.id
+      WHERE customer_id = $1
+    `,
+    [user.id]
+  );
+
+  return result.rows.map((row) => {
     return {
       id: row.id,
-      customer_id: row.customer_id,
       vehicle_id: row.vehicle_id,
       rent_start_date: row.rent_start_date,
       rent_end_date: row.rent_end_date,
       total_price: row.total_price,
       status: row.status,
-      customer: {
-        name: row.customer_name,
-        email: row.customer_email,
-      },
       vehicle: {
         vehicle_name: row.vehicle_name,
         registration_number: row.registration_number,
+        type: row.type,
       },
     };
   });
-
-  return bookings;
 };
 
 const updateBooking = async (
