@@ -28,7 +28,7 @@ const createBooking = async (req: Request, res: Response) => {
 
 const getAllBookings = async (req: Request, res: Response) => {
   try {
-    const result = await BookingServices.getAllBookings();
+    const result = await BookingServices.getAllBookings(req.user!);
 
     res.status(200).json({
       success: true,
@@ -47,7 +47,8 @@ const updateBooking = async (req: Request, res: Response) => {
   try {
     const result = await BookingServices.updateBooking(
       req.params.bookingId!,
-      req.body
+      req.body,
+      req.user!
     );
 
     if (result.rowCount === 0) {
@@ -63,7 +64,6 @@ const updateBooking = async (req: Request, res: Response) => {
       });
     }
   } catch (error: any) {
-    console.log(error);
     res.status(500).json({
       success: false,
       message: error.message,

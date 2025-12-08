@@ -27,7 +27,11 @@ const getUsers = async (req: Request, res: Response) => {
 
 const updateUser = async (req: Request, res: Response) => {
   try {
-    const result = await UserServices.updateUser(req.params.userId!, req.body);
+    const result = await UserServices.updateUser(
+      req.params.userId!,
+      req.body,
+      req.user!
+    );
 
     if (result.rows.length === 0) {
       res.status(500).json({

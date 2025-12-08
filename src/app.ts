@@ -3,7 +3,7 @@ import { UserRouter } from "./modules/user/user.router";
 import initDB from "./config/db";
 import { AuthRouter } from "./modules/auth/auth.router";
 import { VehicleRouter } from "./modules/vehicle/vehicle.router";
-import { BookingRouter } from "./modules/bookings/booking.router";
+import { BookingRouter } from "./modules/booking/booking.router";
 const app = express();
 
 app.use(express.json());
