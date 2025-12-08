@@ -2,11 +2,11 @@ import { NextFunction, Request, Response } from "express";
 import jwt, { JwtPayload } from "jsonwebtoken";
 import config from "../config";
 
-const auth = () => {
+const auth = (...roles: ("admin" | "customer")[]) => {
   return async (req: Request, res: Response, next: NextFunction) => {
     const token = req.headers.authorization?.split("Bearer ")[1];
     if (!token) {
-      return res.status(500).json({
+      return res.status(401).json({
         success: false,
         message: "Unauthorized access",
       });
@@ -18,9 +18,17 @@ const auth = () => {
         config.JWT_SECRET!
       ) as JwtPayload;
       req.user = decoded;
+
+      if (roles.length && !roles.includes(decoded.role)) {
+        return res.status(401).json({
+          success: false,
+          message: "Unauthorized access",
+        });
+      }
+
       next();
     } catch (error) {
-      return res.status(500).json({
+      return res.status(401).json({
         success: false,
         message: "Unauthorized access",
       });
