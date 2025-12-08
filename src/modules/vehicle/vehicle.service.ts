@@ -44,9 +44,15 @@ const updateVehicle = async (
 
   return await pool.query(
     `
-      UPDATE vehicles
-      SET vehicle_name = $2, type = $3, registration_number = $4, daily_rent_price = $5, availability_status = $6
-      WHERE id = $1 RETURNING *;
+    UPDATE vehicles
+    SET
+    vehicle_name = COALESCE($2, vehicle_name),
+    type = COALESCE($3, type),
+    registration_number = COALESCE($4, registration_number),
+    daily_rent_price = COALESCE($5, daily_rent_price),
+    availability_status = COALESCE($6, availability_status)
+    WHERE id = $1
+    RETURNING *;
     `,
     [
       vehicleId,
